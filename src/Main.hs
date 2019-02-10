@@ -1,8 +1,9 @@
 module Main(main) where
 
---import Data.Char(Char)
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Interact(Event(..), Key(..))
+import Graphics.Gloss.Interface.IO.Game(playIO)
+import Graphics.Gloss.Interface.Environment(getScreenSize)
 import Graphics.Gloss.Data.ViewPort
 
 fps = 60 :: Int
@@ -11,7 +12,20 @@ height = 300 :: Int
 offset = 100 :: Int
 
 main :: IO ()
-main = play window background fps initialState render handleKeys update
+main = playIO window background fps initialState renderIO handleKeysIO updateIO
+
+renderIO :: PongGame -> IO Picture
+renderIO game = do
+  (x, y) <- getScreenSize
+  return $ render game
+
+handleKeysIO :: Event -> PongGame -> IO PongGame
+handleKeysIO event game = do
+  return $ handleKeys event game
+
+updateIO :: Float -> PongGame -> IO PongGame
+updateIO seconds game = do
+  return $ update seconds game
 
 -- | Update the game by moving the ball and bouncing off walls.
 update :: Float -> PongGame -> PongGame
