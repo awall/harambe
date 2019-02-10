@@ -1,26 +1,23 @@
 module Main(main) where
 
-import Graphics.Gloss
-import Graphics.Gloss.Interface.IO.Interact(Event(..), Key(..))
-import Graphics.Gloss.Interface.IO.Game(playIO)
-import Graphics.Gloss.Interface.Environment(getScreenSize)
-import Graphics.Gloss.Data.ViewPort
+import qualified Harambe.System as S
 
-fps = 60 :: Int
-width = 300 :: Int
+import Graphics.Gloss
+import Graphics.Gloss.Interface.Environment(getScreenSize)
+
 height = 300 :: Int
-offset = 100 :: Int
+width = 300 :: Int
 
 main :: IO ()
-main = playIO window background fps initialState renderIO handleKeysIO updateIO
+main = S.runLoop initialState renderIO handleIO updateIO
 
 renderIO :: PongGame -> IO Picture
 renderIO game = do
   (x, y) <- getScreenSize
   return $ render game
 
-handleKeysIO :: Event -> PongGame -> IO PongGame
-handleKeysIO event game = do
+handleIO :: S.Event -> PongGame -> IO PongGame
+handleIO event game = do
   return $ handleKeys event game
 
 updateIO :: Float -> PongGame -> IO PongGame
@@ -79,12 +76,6 @@ initialState = Game
   , player1 = 40
   , player2 = -80
   }
-
-window :: Display
-window = InWindow "Pong" (width, height) (offset, offset)
-
-background :: Color
-background = black
 
 drawing :: Picture
 drawing = pictures [ball, walls,
@@ -151,16 +142,14 @@ wallCollision (_, y) radius = topCollision || bottomCollision
     bottomCollision = y + radius >=  fromIntegral width / 2
 
 -- | Respond to key events.
-handleKeys :: Event -> PongGame -> PongGame
+handleKeys :: S.Event -> PongGame -> PongGame
 
 -- For an 's' keypress, reset the ball to the center.
-handleKeys (EventKey (Char 's') _ _ _) game =
+handleKeys (S.EventKey S.KeyS) game =
   game { ballLoc = (0, 0) }
-handleKeys (EventKey (Char 'w') _ _ _) game =
+handleKeys (S.EventKey S.KeyW) game =
   game { player1 = (player1 game) - 5 }
-handleKeys (EventKey (Char 'a') _ _ _) game =
+handleKeys (S.EventKey S.KeyA) game =
   game { player1 = (player1 game) + 5 }
-
-
 -- Do nothing for all other events.
 handleKeys _ game = game
