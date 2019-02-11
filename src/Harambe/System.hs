@@ -1,56 +1,41 @@
-module Harambe.System
-  ( runLoop
-  , Event(..)
-  , Key(..)
-) where
+module Harambe.System(
+    module Harambe.System.Event,
+    module Harambe.System.Graphics,
+    eventLoop,
+    quit,
+)
+where
+
+import Harambe.System.Event
+import Harambe.System.Graphics
+import Harambe.System.Private.Picture
 
 import qualified Graphics.Gloss as G
-import qualified Graphics.Gloss.Interface.IO.Interact as GI
 import qualified Graphics.Gloss.Interface.IO.Game as G
 
-data Key =
-  KeyA |
-  KeyB |
-  KeyC |
-  KeyD |
-  KeyE |
-  KeyF |
-  KeyG |
-  KeyH |
-  KeyI |
-  KeyJ |
-  KeyK |
-  KeyL |
-  KeyM |
-  KeyN |
-  KeyO |
-  KeyP |
-  KeyQ |
-  KeyR |
-  KeyS |
-  KeyT |
-  KeyU |
-  KeyV |
-  KeyW |
-  KeyX |
-  KeyY |
-  KeyZ |
-  KeyOther
-  deriving (Enum)
+import System.Exit(exitSuccess)
+import Control.Monad(liftM)
 
-data Event = 
-  EventKey Key |
-  EventOther
 
-fromGloss :: G.Event -> Event
-fromGloss (G.EventKey (G.Char c) _ _ _) | c >= 'a' && c <= 'z' = EventKey $ toEnum $ (fromEnum KeyA) + (fromEnum c - fromEnum 'a')
-fromGloss (G.EventKey _ _ _ _) = EventKey KeyOther
-fromGloss _ = EventOther
+quit :: IO a
+quit = exitSuccess
 
-runLoop :: a -> (a -> IO G.Picture) -> (Event -> a -> IO a) -> (Float -> a -> IO a) -> IO ()
-runLoop state render react advance =
-  G.playIO display G.black fps state render react' advance
+eventLoop :: String -> a -> (a -> IO Picture) -> (Event -> a -> IO a) -> (Float -> a -> IO a) -> IO ()
+eventLoop title state render react advance =
+  G.playIO display G.black fps state render' react' advance
   where
     fps = 60
-    display = G.FullScreen
-    react' = react . fromGloss
+    display = G.InWindow title (500, 500) (100, 100)
+    react' e a = react (eventFromGloss e) a
+    render' = liftM pictureToGloss . render
+    pictureToGloss (GlossPicture p) = p
+
+eventFromGloss :: G.Event -> Event
+eventFromGloss (G.EventKey (G.Char c) _ _ _) | c >= 'a' && c <= 'z' =
+  EventKey $ toEnum $ (fromEnum KeyA) + (fromEnum c - fromEnum 'a')
+
+eventFromGloss (G.EventKey _ _ _ _) =
+  EventKey KeyOther
+
+eventFromGloss _ =
+  EventOther

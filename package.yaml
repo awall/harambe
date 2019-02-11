@@ -22,6 +22,8 @@ description:         Please see the README on GitHub at <https://github.com/awal
 dependencies:
 - base >= 4.7 && < 5
 - gloss >= 1.13 && < 1.14
+- GLUT >= 2.1
+- OpenGL >= 2.2
 
 executables:
   harambe-exe:
