@@ -12,11 +12,11 @@ renderIO game = do
   (x, y) <- getWindowSize
   return $ render (x, y) game
 
-handleIO :: Event -> Game -> IO Game
-handleIO (EventKey KeyQ) _ = 
-  quit
+handleIO :: IO () -> Event -> Game -> IO Game
+handleIO quit (EventKey KeyQ) game = 
+  quit >> return game
 
-handleIO event game = do
+handleIO quit event game = do
   return game
 
 updateIO :: Float -> Game -> IO Game
