@@ -4,7 +4,7 @@ github:              "awall/harambe"
 license:             BSD3
 author:              "Adam Wall"
 maintainer:          "agcwall@gmail.com"
-copyright:           "2019 Adam Wall"
+copyright:           "2020 Adam Wall"
 
 extra-source-files:
 - README.md
@@ -21,15 +21,24 @@ description:         Please see the README on GitHub at <https://github.com/awal
 
 dependencies:
 - base >= 4.7 && < 5
-- gloss >= 1.13 && < 1.14
+- lens >= 4.18
+- gloss >= 1.13
 - GLUT >= 2.1
 - OpenGL >= 2.2
 
+default-extensions:
+- TemplateHaskell
+
 executables:
-  harambe-exe:
+  harambe:
     main:                Main.hs
     source-dirs:         src
     ghc-options:
+    - -Wall
+    - -Wcompat
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+    - -Wredundant-constraints    
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
