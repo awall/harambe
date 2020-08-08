@@ -1,4 +1,4 @@
-module Harambe.System.Private.Color
+module Harambe.System.Internal.Color
 where
 
 import qualified Graphics.Gloss as G

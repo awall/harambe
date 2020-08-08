@@ -1,10 +1,9 @@
 module Harambe.System.Graphics.Color (
   module Harambe.System.Graphics.Color,
   Color,
-)
-where
+) where
 
-import Harambe.System.Private.Color
+import Harambe.System.Internal.Color
 
 import qualified Graphics.Gloss as G
 

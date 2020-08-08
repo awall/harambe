@@ -2,12 +2,11 @@ module Harambe.System.Graphics(
   module Harambe.System.Graphics,
   module Harambe.System.Graphics.Color,
   Picture,
-)
-where
+) where
 
 import Harambe.System.Graphics.Color
-import Harambe.System.Private.Color
-import Harambe.System.Private.Picture
+import Harambe.System.Internal.Color
+import Harambe.System.Internal.Picture
 
 import qualified Graphics.Gloss as G
 import qualified Graphics.Gloss.Interface.Environment as G

@@ -3,8 +3,10 @@ where
 
 
 data Event = 
-  EventKey Key |
+  EventKey Key UpDown |
   EventOther
+
+data UpDown = Up | Down
 
 data Key =
   KeyA |
@@ -33,5 +35,9 @@ data Key =
   KeyX |
   KeyY |
   KeyZ |
+
+  KeySpace |
+  KeyEsc |
+
   KeyOther
     deriving (Enum)
