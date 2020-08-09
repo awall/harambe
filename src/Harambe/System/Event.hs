@@ -1,9 +1,12 @@
 module Harambe.System.Event
 where
 
+import Harambe.System.Internal.Point
+
 
 data Event = 
   EventKey Key UpDown |
+  EventMotion Point |
   EventOther
 
 data UpDown = Up | Down

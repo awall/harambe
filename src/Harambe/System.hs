@@ -44,5 +44,8 @@ eventFromGloss (G.EventKey k ud _ _) =
       G.SpecialKey G.KeyEsc -> KeyEsc
       _ -> KeyOther
 
+eventFromGloss (G.EventMotion xy) = 
+  EventMotion xy
+
 eventFromGloss _ =
   EventOther

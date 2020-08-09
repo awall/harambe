@@ -1,65 +1,89 @@
 import Harambe.System
+import Harambe.Math as M
 
 import Control.Lens
-import Control.Lens.TH
-import Data.IORef
 
 
 data Game = Game {
   _position :: Point,
-  _velocity :: (Float, Float)
+  _velocity :: (Float, Float),
+  _mouse :: Point,
+  _angle :: Angle,
+  _hop :: (Float, Angle) -- seconds
 }
 $(makeLenses ''Game)
 
 main :: IO ()
 main = do
-  let game = Game { _position = (0, 0), _velocity = (0, 0) }
-  runEventLoop "Harambe RPG" game renderIO handleIO updateIO
+  let game = Game { _position = (0,0), _velocity = (0,0), _mouse = (0,0), _angle = Degrees 0, _hop = (0.0, Degrees 0) }
+  runEventLoop "Harambe RPG" game render handleEvent update
 
 
+white, green, red :: Color
+white = rgb (Red 1.0) (Green 1.0) (Blue 1.0)
+red = rgb (Red 1.0) (Green 0.0) (Blue 0.0)
+green = rgb (Red 0.0) (Green 1.0) (Blue 0.0)
 
 
-
-renderIO :: Game -> IO Picture
-renderIO game = do
-  (w, h) <- getWindowSize
+render :: Game -> IO Picture
+render game = do
+  (_, h) <- getWindowSize
   return
     $ scale (h, h)
-    $ translate (game^.position)
-    $ color turquoise
-    $ circleSolid (Radius 0.05)
-  
-handleIO :: Event -> Game -> IO Game
-handleIO (EventKey KeyEsc _) game = do
-  exitSuccess
-  return game
+    $ pictures [
+      translate (game^.position) $ rotate (game^.angle) $ pictures [
+        color green $ circleSolid (Radius 0.05),
+        color white $ polygon [(0.0, -0.03), (0.12, -0.03), (0.12, -0.04), (0.0, -0.04)]
+      ],
+      translate (game^.mouse) $ color red $ circleSolid (Radius 0.01)
+    ]
 
-handleIO (EventKey key upOrDown) game =
-  return (next game)
+    
+handleEvent :: Event -> Game -> IO Game
+handleEvent (EventKey KeyEsc _) _ = do
+  _ <- exitSuccess
+  error "Program terminated."
+
+handleEvent (EventKey KeySpace Down) game =  
+  return $ game & hop %~ nextHop
+  where
+    nextHop (t,a) = if t <= 0.0 then (0.1, game^.angle) else (t,a)
+
+handleEvent (EventKey key upOrDown) game =
+  return $ next game
   where 
+    next = case key of
+      KeyW -> move y forward
+      KeyS -> move y backward
+      KeyD -> move x forward
+      KeyA -> move x backward      
+      _ -> id
     mul = case upOrDown of Up -> -1.0; Down -> 1.0
     forward a = a + mul
     backward a = a - mul
     move xy dir = over (velocity . xy) dir
     x = _1
     y = _2
-    next = case key of
-      KeyW -> move y forward
-      KeyS -> move y backward
-      KeyD -> move x forward
-      KeyA -> move x backward
-      _ -> id
-    
-handleIO event game = do
+
+handleEvent (EventMotion (mx,my)) g0 = do
+  (_, h) <- getWindowSize
+  let g1 = g0 & set mouse (mx/h,my/h)
+  return g1
+
+handleEvent _ game =
   return game
 
-updateIO :: Float -> Game -> IO Game
-updateIO seconds game = do
-  return (game & position %~ move)
+update :: Float -> Game -> IO Game
+update seconds g0 = do
+  let g1 = g0 & set angle ((g0^.position) `M.pointingAt` (g0^.mouse))
+  let g2 = g1 & position %~ move
+  let g3 = g2 & hop . _1 %~ (\t -> t - seconds)
+  return g3
   where
-    (dx, dy) = game^.velocity
+    (hopt,hopa) = g0^.hop
+    (dx,dy) = g0^.velocity
     speed = 0.3 * seconds
-    move (x, y) = (x + dx*speed, y + dy*speed)
-
-turquoise :: Color
-turquoise = rgba (Red 0.0) (Green 1.0) (Blue 1.0) (Alpha 0.5)
+    jspeed = 2.4 * min seconds hopt
+    move (x,y) = if hopt > 0.0 
+      then (x - jspeed*M.cos hopa, y + jspeed*M.sin hopa)
+      else (x + dx*speed, y + dy*speed)
