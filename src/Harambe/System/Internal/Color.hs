@@ -1,5 +1,6 @@
 module Harambe.System.Internal.Color
-where
+  ( Color (..)
+  ) where
 
 import qualified Graphics.Gloss as G
 

@@ -1,5 +1,6 @@
 module Harambe.System.Internal.Picture
-where
+  ( Picture(..)
+  ) where
 
 import qualified Graphics.Gloss as G
 

@@ -1,10 +1,10 @@
-module Harambe.System.Graphics(
-  module Harambe.System.Graphics,
-  module Harambe.System.Graphics.Color,
-  Picture,
-  Point,
-  Pixels,
-) where
+module Harambe.System.Graphics
+  ( module Harambe.System.Graphics -- Everything declared in this file gets exported!
+  , module Harambe.System.Graphics.Color
+  , Picture
+  , Point
+  , Pixels
+  ) where
 
 import Harambe.Math(Angle(..))
 import Harambe.System.Graphics.Color
@@ -13,7 +13,6 @@ import Harambe.System.Internal.Point
 import Harambe.System.Internal.Picture
 
 import qualified Graphics.Gloss as G
-import qualified Graphics.Gloss.Interface.Environment as G
 import qualified Graphics.UI.GLUT.Window as GL
 import qualified Graphics.Rendering.OpenGL.GL as GL
 
@@ -21,6 +20,7 @@ import qualified Graphics.Rendering.OpenGL.GL as GL
 type Path = [Point]
 newtype Radius = Radius Pixels 
 newtype Thickness = Thickness Pixels
+
 
 getWindowSize :: IO Point
 getWindowSize = do 
@@ -66,9 +66,9 @@ translate :: Point -> Picture -> Picture
 translate (x, y) (GlossPicture p) =
   GlossPicture $ G.translate x y p
 
-rotate :: Angle -> Picture -> Picture
-rotate (Degrees d) (GlossPicture p) =
-  GlossPicture $ G.rotate d p
+rotateCCW :: Angle -> Picture -> Picture
+rotateCCW (Degrees d) (GlossPicture p) =
+  GlossPicture $ G.rotate (-d) p
 
 scale :: (Float, Float) -> Picture -> Picture
 scale (x, y) (GlossPicture p) =

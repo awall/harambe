@@ -1,7 +1,8 @@
-module Harambe.System.Graphics.Color (
-  module Harambe.System.Graphics.Color,
-  Color,
-) where
+module Harambe.System.Graphics.Color 
+  ( Red(..), Green(..), Blue(..), Alpha(..)
+  , Color
+  , rgb, rgba
+  ) where
 
 import Harambe.System.Internal.Color
 
@@ -12,6 +13,7 @@ newtype Red = Red Float
 newtype Green = Green Float
 newtype Blue = Blue Float
 newtype Alpha = Alpha Float
+
 
 rgb :: Red -> Green -> Blue -> Color
 rgb r g b =

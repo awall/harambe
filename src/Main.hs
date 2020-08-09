@@ -4,24 +4,30 @@ import Harambe.Math as M
 import Control.Lens
 
 
-data Game = Game {
-  _position :: Point,
-  _velocity :: (Float, Float),
-  _mouse :: Point,
-  _angle :: Angle,
-  _hop :: (Float, Angle) -- seconds
-}
+data Game = Game 
+  { _position :: Point
+  , _velocity :: (Float, Float)
+  , _mouse :: Point
+  , _angle :: Angle
+  , _hop :: (Float, Angle) -- seconds
+  }
 $(makeLenses ''Game)
 
 main :: IO ()
 main = do
-  let game = Game { _position = (0,0), _velocity = (0,0), _mouse = (0,0), _angle = Degrees 0, _hop = (0.0, Degrees 0) }
+  let game = Game {
+      _position = (0,0)
+    , _velocity = (0,0)
+    , _mouse = (0,0)
+    , _angle = Degrees 0
+    , _hop = (0.0, Degrees 0)
+    }
   runEventLoop "Harambe RPG" game render handleEvent update
 
 
 white, green, red :: Color
 white = rgb (Red 1.0) (Green 1.0) (Blue 1.0)
-red = rgb (Red 1.0) (Green 0.0) (Blue 0.0)
+red   = rgb (Red 1.0) (Green 0.0) (Blue 0.0)
 green = rgb (Red 0.0) (Green 1.0) (Blue 0.0)
 
 
@@ -31,7 +37,7 @@ render game = do
   return
     $ scale (h, h)
     $ pictures [
-      translate (game^.position) $ rotate (game^.angle) $ pictures [
+      translate (game^.position) $ rotateCCW (game^.angle) $ pictures [
         color green $ circleSolid (Radius 0.05),
         color white $ polygon [(0.0, -0.03), (0.12, -0.03), (0.12, -0.04), (0.0, -0.04)]
       ],
@@ -47,7 +53,9 @@ handleEvent (EventKey KeyEsc _) _ = do
 handleEvent (EventKey KeySpace Down) game =  
   return $ game & hop %~ nextHop
   where
-    nextHop (t,a) = if t <= 0.0 then (0.1, game^.angle) else (t,a)
+    nextHop (t,a)
+      | t <= 0.0  = (0.1, game^.angle)
+      | otherwise = (t, a)
 
 handleEvent (EventKey key upOrDown) game =
   return $ next game
@@ -59,7 +67,7 @@ handleEvent (EventKey key upOrDown) game =
       KeyA -> move x backward      
       _ -> id
     mul = case upOrDown of Up -> -1.0; Down -> 1.0
-    forward a = a + mul
+    forward  a = a + mul
     backward a = a - mul
     move xy dir = over (velocity . xy) dir
     x = _1
@@ -84,6 +92,6 @@ update seconds g0 = do
     (dx,dy) = g0^.velocity
     speed = 0.3 * seconds
     jspeed = 2.4 * min seconds hopt
-    move (x,y) = if hopt > 0.0 
-      then (x - jspeed*M.cos hopa, y + jspeed*M.sin hopa)
-      else (x + dx*speed, y + dy*speed)
+    move (x,y)
+      | hopt > 0.0 = (x - jspeed * M.cos hopa, y - jspeed * M.sin hopa)
+      | otherwise  = (x +  speed * dx,         y +  speed * dy)

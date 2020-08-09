@@ -1,5 +1,8 @@
 module Harambe.System.Event
-where
+ ( Event(..)
+ , Key(..)
+ , UpDown(..)
+ ) where
 
 import Harambe.System.Internal.Point
 
@@ -7,6 +10,7 @@ import Harambe.System.Internal.Point
 data Event = 
   EventKey Key UpDown |
   EventMotion Point |
+  EventClick Point |
   EventOther
 
 data UpDown = Up | Down
