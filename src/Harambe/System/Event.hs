@@ -1,50 +1,47 @@
 module Harambe.System.Event
- ( Event(..)
- , Key(..)
- , UpDown(..)
- ) where
+  ( Button(..)
+  , Event(..)
+  , PressRelease(..)
+  ) where
 
 import Harambe.System.Internal.Point
 
 
-data Event = 
-  EventKey Key UpDown |
-  EventMotion Point |
-  EventClick Point |
-  EventOther
+data Event
+  = EventButton Button PressRelease
+  | EventMotion Point
 
-data UpDown = Up | Down
+data PressRelease = Press | Release
 
-data Key =
-  KeyA |
-  KeyB |
-  KeyC |
-  KeyD |
-  KeyE |
-  KeyF |
-  KeyG |
-  KeyH |
-  KeyI |
-  KeyJ |
-  KeyK |
-  KeyL |
-  KeyM |
-  KeyN |
-  KeyO |
-  KeyP |
-  KeyQ |
-  KeyR |
-  KeyS |
-  KeyT |
-  KeyU |
-  KeyV |
-  KeyW |
-  KeyX |
-  KeyY |
-  KeyZ |
-
-  KeySpace |
-  KeyEsc |
-
-  KeyOther
-    deriving (Enum)
+data Button
+  = KeyA
+  | KeyB
+  | KeyC
+  | KeyD
+  | KeyE
+  | KeyF
+  | KeyG
+  | KeyH
+  | KeyI
+  | KeyJ
+  | KeyK
+  | KeyL
+  | KeyM
+  | KeyN
+  | KeyO
+  | KeyP
+  | KeyQ
+  | KeyR
+  | KeyS
+  | KeyT
+  | KeyU
+  | KeyV
+  | KeyW
+  | KeyX
+  | KeyY
+  | KeyZ
+  | KeySpace
+  | KeyEsc
+  | MouseLeft
+  | MouseRight
+  deriving (Enum)

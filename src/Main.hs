@@ -46,18 +46,18 @@ render game = do
 
     
 handleEvent :: Event -> Game -> IO Game
-handleEvent (EventKey KeyEsc _) _ = do
+handleEvent (EventButton KeyEsc _) _ = do
   _ <- exitSuccess
   error "Program terminated."
 
-handleEvent (EventKey KeySpace Down) game =  
+handleEvent (EventButton KeySpace Press) game =  
   return $ game & hop %~ nextHop
   where
     nextHop (t,a)
       | t <= 0.0  = (0.1, game^.angle)
       | otherwise = (t, a)
 
-handleEvent (EventKey key upOrDown) game =
+handleEvent (EventButton key pressRelease) game =
   return $ next game
   where 
     next = case key of
@@ -66,7 +66,7 @@ handleEvent (EventKey key upOrDown) game =
       KeyD -> move x forward
       KeyA -> move x backward      
       _ -> id
-    mul = case upOrDown of Up -> -1.0; Down -> 1.0
+    mul = case pressRelease of Press -> 1.0; Release -> -1.0
     forward  a = a + mul
     backward a = a - mul
     move xy dir = over (velocity . xy) dir
@@ -77,9 +77,6 @@ handleEvent (EventMotion (mx,my)) g0 = do
   (_, h) <- getWindowSize
   let g1 = g0 & set mouse (mx/h,my/h)
   return g1
-
-handleEvent _ game =
-  return game
 
 update :: Float -> Game -> IO Game
 update seconds g0 = do

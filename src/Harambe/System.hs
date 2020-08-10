@@ -21,11 +21,10 @@ runEventLoop
   :: String               -- ^ window title
   -> a                    -- ^ the world 
   -> (a -> IO Picture)    -- ^ render the world
-  -> (Event -> a -> IO a) -- ^ update world in response to event
+  -> (Event -> a -> IO a) -- ^ update world in response to event + mouse position
   -> (Float -> a -> IO a) -- ^ update world on every timestep
   -> IO ()
-runEventLoop title state render react advance = do
-  let react' e a = react (eventFromGloss e) a
+runEventLoop title state render react advance =
   G.playIO display G.black fps state render' react' advance'
   where
     fps = 60
@@ -33,22 +32,28 @@ runEventLoop title state render react advance = do
     render' = liftM pictureToGloss . render
     advance' s a = advance s a
     pictureToGloss (GlossPicture p) = p
+    react' e a = case eventFromGloss e of
+      Just ne -> react ne a
+      Nothing -> return a
 
-eventFromGloss :: G.Event -> Event
-eventFromGloss (G.EventKey k ud _ _) =
-  EventKey key upDown
+eventFromGloss :: G.Event -> Maybe Event
+eventFromGloss (G.EventKey k ud _ _) = do
+  b <- button
+  Just $ EventButton b pressRelease
   where 
-    upDown = case ud of 
-      G.Down -> Down
-      G.Up   -> Up
-    key = case k of 
-      G.Char c | c >= 'a' && c <= 'z' -> toEnum $ (fromEnum KeyA) + (fromEnum c - fromEnum 'a')
-      G.SpecialKey G.KeySpace -> KeySpace
-      G.SpecialKey G.KeyEsc   -> KeyEsc
-      _ -> KeyOther
+    pressRelease = case ud of 
+      G.Down -> Press
+      G.Up   -> Release
+    button = case k of 
+      G.Char c | c >= 'a' && c <= 'z' -> Just $ toEnum $ (fromEnum KeyA) + (fromEnum c - fromEnum 'a')
+      G.SpecialKey  G.KeySpace        -> Just KeySpace
+      G.SpecialKey  G.KeyEsc          -> Just KeyEsc
+      G.MouseButton G.LeftButton      -> Just MouseLeft
+      G.MouseButton G.RightButton     -> Just MouseRight
+      _ -> Nothing
 
 eventFromGloss (G.EventMotion xy) = 
-  EventMotion xy
+  Just $ EventMotion xy
 
 eventFromGloss _ =
-  EventOther
+  Nothing
