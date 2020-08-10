@@ -25,6 +25,7 @@ dependencies:
 - gloss >= 1.13
 - GLUT >= 2.1
 - OpenGL >= 2.2
+- random >= 1.1
 
 default-extensions:
 - TemplateHaskell
