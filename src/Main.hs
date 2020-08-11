@@ -1,8 +1,8 @@
 import Harambe.System
 import Harambe.Math as M
 
-import Control.Lens
-import System.Random
+import Control.Lens hiding (Identity)
+import System.Random (randomIO)
 
 data Game = Game 
   { _position :: Point
@@ -51,8 +51,11 @@ render game = do
         , color green $ circleSolid (Radius 0.05)
         ]
       , translate (game^.mouse) $ color red $ circleSolid (Radius 0.01)
+      , translate (transformz xx (0.15, -0.035)) $ color green $ circleSolid (Radius 0.01)
       ]
-  where sw = game^.sword  
+  where 
+    sw = game^.sword  
+    xx = Translate (game^.position) $ Rotate (game^.angle) $ Rotate (Degrees 20) $ Translate (sw, 0.0) Identity
     
 handleEvent :: Event -> Game -> IO Game
 handleEvent (EventButton KeyEsc _) _ = do
@@ -60,7 +63,7 @@ handleEvent (EventButton KeyEsc _) _ = do
   error "Program terminated."
 
 handleEvent (EventButton MouseLeft Press) g0 = do
-  r <- randomIO
+  r :: Int <- randomIO
   let anng = Degrees $ fromIntegral (r `mod` 360)
   let g1 = g0 & strike %~ nextStrike
   let g2 = g1 & set monsterAngle anng
@@ -126,7 +129,7 @@ update seconds g0 = do
     (mx,my) = g0^.monster
     nextMonsterAngle 
       | mx < -0.5 = Degrees 0
-      | mx > 0.5 = Degrees 180
+      | mx >  0.5 = Degrees 180
       | my < -0.5 = Degrees 90
-      | my > 0.5 = Degrees 270
+      | my >  0.5 = Degrees 270
       | otherwise = ma

@@ -28,6 +28,8 @@ dependencies:
 - random >= 1.1
 
 default-extensions:
+- FlexibleInstances
+- ScopedTypeVariables
 - TemplateHaskell
 
 executables:

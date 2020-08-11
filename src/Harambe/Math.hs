@@ -1,7 +1,7 @@
 module Harambe.Math
   ( Angle(..)
-  , sin
-  , cos
+  , Transform(..), Transformable(..)
+  , sin, cos
   , pointingAt
   ) where
 
@@ -12,6 +12,21 @@ import qualified Prelude as P (sin, cos, atan2)
 
 
 newtype Angle = Degrees Float
+
+data Transform
+  = Identity
+  | Rotate    Angle          Transform
+  | Translate (Float, Float) Transform
+  | Scale     (Float, Float) Transform
+
+class Transformable t where
+  transformz :: Transform -> t -> t
+
+instance Transformable (Float, Float) where
+  transformz Identity            = id
+  transformz (Translate (a,b) t) = (\(x,y) -> (a+x,b+y))                              . transformz t
+  transformz (Scale     (a,b) t) = (\(x,y) -> (a*x,b*y))                              . transformz t
+  transformz (Rotate d t)        = (\(x,y) -> (x*cos d - y*sin d, x*sin d + y*cos d)) . transformz t
 
 
 sin :: Angle -> Float
