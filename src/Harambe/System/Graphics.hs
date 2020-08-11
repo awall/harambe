@@ -6,7 +6,7 @@ module Harambe.System.Graphics
   , Pixels
   ) where
 
-import Harambe.Math(Angle(..))
+import Harambe.Math(Angle(..), Transform(..), Transformable(..))
 import Harambe.System.Graphics.Color
 import Harambe.System.Internal.Color
 import Harambe.System.Internal.Point
@@ -22,10 +22,20 @@ newtype Radius = Radius Pixels
 newtype Thickness = Thickness Pixels
 
 
+instance Transformable Picture where
+  transformz Identity        = id
+  transformz (Translate xy p) = translate xy . transformz p
+  transformz (Scale     xy p) = scale     xy . transformz p
+  transformz (Rotate     d p) = rotateCCW  d . transformz p
+
+
 getWindowSize :: IO Point
 getWindowSize = do 
   GL.Size x y <- GL.get GL.windowSize
   return (fromIntegral x, fromIntegral y)
+
+text :: String -> Picture
+text t = GlossPicture $ G.text t
 
 blank :: Picture
 blank = GlossPicture $ G.blank
